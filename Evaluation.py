@@ -13,8 +13,10 @@ import re
 from transformers import pipeline
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
-
+from nltk.corpus import stopwords
 #summarizer = pipeline('summarization')
+
+nltk.download('stopwords')
 
 def get_pdf_text(pdf_docs):
     text = ""
@@ -55,8 +57,8 @@ def extract_comments(text):
     return df_course_comments, df_instructor_comments
 
 
-def create_wordcloud(text):
-    wordcloud = WordCloud(background_color='white').generate(text)
+def create_wordcloud(text, stopwords=None):
+    wordcloud = WordCloud(background_color='white', stopwords=stopwords).generate(text)
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis("off")
     st.pyplot()
@@ -146,15 +148,16 @@ def main():
         st.write(df_course_comments)
         plot_sentiment_distribution(df_course_comments, 'Sentiment', 'Course Comments')
         course_text_for_wordcloud = ' '.join(df_course_comments['Course Comments'])
+        stop_words = set(stopwords.words('english'))
         st.subheader("Word Cloud for Course Comments")
-        create_wordcloud(course_text_for_wordcloud)
+        create_wordcloud(course_text_for_wordcloud, stop_words)
 
         st.markdown("# Instructor Comments")
         st.write(df_instructor_comments)
         plot_sentiment_distribution(df_instructor_comments, 'Sentiment', 'Instructor Comments')
         instructor_text_for_wordcloud = ' '.join(df_instructor_comments['Instructor Comments'])
         st.subheader("Word Cloud for Instructor Comments")
-        create_wordcloud(instructor_text_for_wordcloud)
+        create_wordcloud(instructor_text_for_wordcloud, stop_words)
 
 if __name__ == '__main__':
     main()
